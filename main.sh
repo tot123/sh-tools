@@ -27,7 +27,7 @@ grant_exec_permission
 
 
 # 定义 init_monitor_network.sh 的路径
-INIT_SCRIPT="$SCRIPT_DIR/init/register_monitor_network_service.sh"
+INIT_SCRIPT="$SCRIPT_DIR/network_monitor/install.sh"
 
 # 检查 init_monitor_network.sh 是否存在
 if [ ! -f "$INIT_SCRIPT" ]; then
@@ -35,6 +35,7 @@ if [ ! -f "$INIT_SCRIPT" ]; then
     exit 1
 fi
 
-# 调用 init_monitor_network.sh 并传递当前目录路径
+# 调用 init_monitor_network.sh
 bash "$INIT_SCRIPT" 
+# 调用 init_monitor_network.sh 并传递当前目录路径
 # bash "$INIT_SCRIPT" "$SCRIPT_DIR"

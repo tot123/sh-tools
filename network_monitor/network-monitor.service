@@ -3,7 +3,7 @@ Description=Network Monitor Service
 After=network.target
 
 [Service]
-ExecStart=/home/ts/vscode/sh-tools/sh/monitor_network.sh
+ExecStart=~/network_monitor/monitor_network.sh
 Restart=always
 User=root
 

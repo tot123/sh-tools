@@ -1,0 +1,1 @@
+sh ./network_monitor/install.sh
