@@ -1,6 +1,6 @@
 apt update -y
 apt upgrade -y
-apt install -y sudo net-tools curl wget vim tree unzip zip net-tools
+apt install -y sudo net-tools curl wget vim tree unzip zip net-tools 
 apt install -y htop iotop iftop 
 apt install -y git nc
 apt install -y zsh nmap lsof tcpdump

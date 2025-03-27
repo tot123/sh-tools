@@ -2,27 +2,22 @@
 
 # DDNS 安装脚本
 
-if [ "$(id -u)" -ne 0 ]; then
-    echo "请使用 root 权限运行此脚本"
+# 检查是否已安装
+SERVER_NUM=$(crontab -l | grep "ddns-aliyun"  | wc -l)
+if [ $SERVER_NUM -gt 0 ]; then
+    echo "定时任务已存在"
     exit 1
 fi
 
-# 创建目录
-mkdir -p /etc/ddns-aliyun
-mkdir -p /var/cache/ddns-aliyun
-chmod 700 /var/cache/ddns-aliyun
+# 加载 ddns-aliyun.sh 脚本
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+MAIN_SHELL="$SCRIPT_DIR/ddns-aliyun.sh"
+source "$MAIN_SHELL"
+# 调用 load_config 方法
+load_config
 
-# 复制文件
-cp ddns-aliyun.sh /usr/local/bin/ddns-aliyun
-chmod +x /usr/local/bin/ddns-aliyun
-
-# 配置文件
-if [ ! -f "/etc/ddns-aliyun/config.ini" ]; then
-    cp config.ini /etc/ddns-aliyun/config.ini
-    echo "请先编辑配置文件: /etc/ddns-aliyun/config.ini"
-fi
-
-# 添加定时任务
-(crontab -l 2>/dev/null; echo "* * * * * /usr/local/bin/ddns-aliyun") | crontab -
+# # 添加定时任务
+(crontab -l 2>/dev/null; echo "*/10 * * * * /bin/bash $MAIN_SHELL") | crontab -
 
 echo "安装完成"
+log "INFO" "ddns-aliyun服务安装完成"

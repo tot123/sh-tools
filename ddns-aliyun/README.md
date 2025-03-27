@@ -8,7 +8,7 @@ ddns-aliyun/
 ├── ddns-aliyun.sh
 ├── install.sh
 ├── uninstall.sh
-└── config.ini.example
+└── config.ini
 ```
 
 ### 前置要求
@@ -21,11 +21,12 @@ apt update && apt install -y curl openssl cron
 
 ### 使用说明
 
-1. 将上述文件保存到对应位置
-2. 重命名 `config.ini.example` 为 `config.ini` 并填写阿里云密钥
-3. 运行 `install.sh` 完成安装
-4. 日志文件位于 `/var/log/ddns-aliyun.log`
-5. 各个文件所在位置说明：
+1. 编辑`config.ini`文件，确保正确填写了ak和sk。
+2. DOMAIN_V4 对应的IPV4_ENABLED 被设置为true 并且对应域名已经在阿里云上初始化过解析了，注意ipv4解析类型为 `A`  
+3. DOMAIN_V6 对应的IPV6_ENABLED 被设置为true 并且对应域名已经在阿里云上初始化过解析了，注意ipv6解析类型为 `AAAA`  
+4. 运行 `install.sh` 完成安装
+5. 日志文件位于 `$HOME/tmp/logs/ddns-aliyun.log`, 同时配置`$HOME/tmp/logs/ddns-aliyun.log`缓存上次成功更新的ip。
+6. 各个文件所在位置说明：
     * 配置文件在：/etc/ddns-aliyun/config.ini    
     * 文件运行脚本在：/etc/ddns-aliyun/ddns-aliyun.sh    
     * 日志文件在：/etc/ddns-aliyun/ddns-aliyun.log   
