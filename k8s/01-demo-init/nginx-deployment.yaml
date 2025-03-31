@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-demo
+  namespace: demo
+spec:
+  replicas: 1  # 副本数量
+  selector:
+    matchLabels:
+      app: nginx-demo  # 必须与 Pod 标签匹配
+  template:
+    metadata:
+      labels:
+        app: nginx-demo  # Service 通过此标签选择 Pod
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.23-alpine  # 官方镜像
+        resources:
+          limits:
+            cpu: "500m"    # 最大使用 0.5 核 CPU
+            memory: "512Mi" # 最大使用 512MB 内存
+          requests:
+            cpu: "250m"    # 保证至少 0.25 核 CPU
+            memory: "256Mi" # 保证至少 256MB 内存
+        ports:
+        - containerPort: 80  # 容器监听端口
+        livenessProbe:       # 存活探针
+          httpGet:
+            path: /healthz   # 健康检查路径（需应用实现）
+            port: 80
+          initialDelaySeconds: 10  # 容器启动 10 秒后开始检查
+          periodSeconds: 5         # 每 5 秒检查一次
+        readinessProbe:     # 就绪探针
+          httpGet:
+            path: /         # 使用根路径作为就绪检查
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 3
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf  # 覆盖默认配置
+          subPath: nginx.conf
+        - name: nfs-storage
+          mountPath: /usr/share/nginx/html  # 挂载网站数据
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config  # 从 ConfigMap 加载配置
+      - name: nfs-storage
+        persistentVolumeClaim:
+          claimName: nfs-pvc  # 使用 NFS PVC

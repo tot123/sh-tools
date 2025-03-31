@@ -1,7 +1,8 @@
 apt update -y
 apt upgrade -y
 apt install -y sudo net-tools curl wget vim tree unzip zip net-tools 
-apt install -y htop iotop iftop 
+apt install -y htop iotop iftop
+
 apt install -y git nc
 apt install -y zsh nmap lsof tcpdump
 
@@ -31,3 +32,4 @@ apt install -y libbz2-dev
 apt install -y libreadline-dev
 apt install -y libsqlite3-dev
 apt install -y libmysqlclient-dev  
+0 3 * * * /bin/bash /home/ts/vscode/sh-tools/sh/sync_files.sh 

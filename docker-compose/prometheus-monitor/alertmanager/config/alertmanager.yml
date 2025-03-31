@@ -1,0 +1,58 @@
+# 配置文件
+global:
+  resolve_timeout: 5m
+  # 发件人
+  smtp_from: '1448752577@qq.com'
+  # 邮箱服务器的 POP3/SMTP 主机配置 smtp.qq.com 端口为 465 或 587
+  smtp_smarthost: 'smtp.qq.com:465'
+  # 用户名
+  smtp_auth_username: '1448752577@qq.com'
+  # 授权码 或 密码
+  smtp_auth_password: '你的qq授权码'
+  smtp_require_tls: false
+  smtp_hello: 'qq.com'
+templates:
+  # 指定预警内容模板
+  - '/etc/alertmanager/template/email.tmpl'
+route:
+  # 指定通过什么字段进行告警分组(如：alertname=A和alertname=B的将会被分导两个组里面)
+  group_by: ['alertname']
+  # 在组内等待所配置的时间，如果同组内，5 秒内出现相同报警，在一个组内出现
+  group_wait: 5s
+  # 如果组内内容不变化，合并为一条警报信息，5 分钟后发送
+  group_interval: 5m
+  # 发送告警间隔时间 s/m/h，如果指定时间内没有修复，则重新发送告警
+  repeat_interval: 5m
+  # 默认的receiver。 如果一个报警没有被任何一个route匹配，则发送给默认的接收器
+  receiver: 'justrydeng163email'
+  #子路由(上面所有的route属性都由所有子路由继承，并且可以在每个子路由上进行覆盖)
+  routes:
+  # 当触发当前预警的prometheus规则满足：标签alarmClassify的为normal时（标签名、标签值可以自定义，只要和编写的prometheus的rule里面设置的标签呼应上即可），往justrydeng163email发送邮件
+  - receiver: justrydeng163email
+    match_re:
+      alarmClassify: normal
+  # 当触发当前预警的prometheus规则满足：标签alarmClassify的值为special时（标签名、标签值可以自定义，只要和编写的prometheus的rule里面设置的标签呼应上即可），往justrydengQQemail发送邮件
+  - receiver: justrydengQQemail
+    match_re:
+      alarmClassify: special
+receivers:
+- name: 'justrydeng163email'
+  email_configs:
+  # 如果想发送多个人就以 ',' 做分割
+  - to: '1448752577@163.com'
+    send_resolved: true
+    # 接收邮件的标题
+    headers: {Subject: "alertmanager报警邮件"}
+- name: 'justrydengQQemail'
+  email_configs:
+  # 如果想发送多个人就以 ',' 做分割
+  - to: '1448752577@qq.com'
+    send_resolved: true
+    # 接收邮件的标题
+    headers: {Subject: "alertmanager报警邮件"}
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']

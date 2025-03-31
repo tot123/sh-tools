@@ -1,0 +1,21 @@
+# 因为我们进行了挂载，所以我们只需编辑宿主机上的模板文件即可
+{{ define "email.html" }}
+<table border="1">
+        <tr>
+                <td>报警项</td>
+                <td>实例</td>
+                <td>报警阀值</td>
+                <td>开始时间</td>
+                <td>告警信息</td>
+        </tr>
+        {{ range $i, $alert := .Alerts }}
+                <tr>
+                        <td>{{ index $alert.Labels "alertname" }}</td>
+                        <td>{{ index $alert.Labels "instance" }}</td>
+                        <td>{{ index $alert.Annotations "value" }}</td>
+                        <td>{{ $alert.StartsAt }}</td>
+                        <td>{{ index $alert.Annotations "description" }}</td>
+                </tr>
+        {{ end }}
+</table>
+{{ end }}

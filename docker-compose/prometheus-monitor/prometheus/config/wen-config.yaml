@@ -1,0 +1,3 @@
+basic_auth_users:
+    # admin/tangsu@10086
+    admin: $2y$12$t3AI7s.VzJUq1LnnqePoouuMZh46w9Fu/a.xRjpZ6cXE570nH0/IW

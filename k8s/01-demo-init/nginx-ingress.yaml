@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  namespace: demo
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /  # 路径重写规则
+spec:
+  rules:
+  - host: "nginx-demo-01.tangsu.icu"  # 域名配置
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-service  # 关联的 Service 名称
+            port:
+              number: 80

@@ -1,0 +1,88 @@
+version: "3.8"
+
+networks:
+  monitor:
+    driver: bridge
+
+volumes:
+  grafana-storage:
+    external: false  # 这样如果卷不存在会自动创建
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.41.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - /opt/prometheus-monitor/prometheus/data:/prometheus/data
+      - /opt/prometheus-monitor/prometheus/config:/prometheus/config
+      - /opt/prometheus-monitor/prometheus/rules:/prometheus/rules
+      - /etc/localtime:/etc/localtime:ro
+    # 使用--web.enable-lifecycle参数后，可通过HTTP API热加载配置文件（/‑/reload）
+    command:
+      - --config.file=/prometheus/config/prometheus.yml
+      - --web.config.file=/prometheus/config/web-config.yml
+      - --web.enable-lifecycle
+      - --web.listen-address=0.0.0.0:9090
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
+      - --storage.tsdb.retention=30d
+    restart: always
+    networks:
+      - monitor
+    depends_on:
+      - node-exporter
+
+  grafana:
+    image: grafana/grafana:9.3.2
+    container_name: grafana
+    # user: "1000"  # id -u 的查询结果
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=tangsu@10086
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel
+    volumes:
+      - grafana-storage:/var/lib/grafana  # 关键修改：使用 Docker 卷替换原目录挂载 原目录挂载会有权限问题
+      # - /opt/prometheus-monitor/grafana/data:/var/lib/grafana
+      # - /opt/prometheus-monitor/grafana/plugins:/var/lib/grafana/plugins
+      - /opt/prometheus-monitor/grafana/config/grafana.ini:/etc/grafana/grafana.ini
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - prometheus
+    restart: always
+    networks:
+      - monitor
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter
+    container_name: node-exporter
+    hostname: node-exporter
+    volumes:
+      - "/:/host:ro,rslave"
+      - "/opt/prometheus-monitor/node_exporter/config/web-config.yml:/config.yml"
+    command:
+      - '--path.rootfs=/host'
+      - '--web.config.file=/config.yml'
+    network_mode: host
+    pid: host
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+    # ports:  配置了    network_mode: host不能使用端口映射，因为直接使用了主机网络
+    #   - "9100:9100"
+
+  alertmanager:
+    image: prom/alertmanager:v0.25.0
+    container_name: alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - /opt/prometheus-monitor/alertmanager/config/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - /opt/prometheus-monitor/alertmanager/template:/etc/alertmanager/template
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - prometheus
+    restart: always

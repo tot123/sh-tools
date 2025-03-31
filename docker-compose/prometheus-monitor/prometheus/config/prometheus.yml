@@ -1,0 +1,29 @@
+global:
+  # 数据采集间隔
+  scrape_interval:     45s
+  # 告警检测间隔
+  evaluation_interval: 45s
+
+# 告警规则
+rule_files:
+  # 这里匹配指定目录下所有的.rules文件
+  - /prometheus/rules/*.rules
+
+# 采集配置
+scrape_configs:
+  # 采集项(prometheus)
+  - job_name: 'prometheus'
+    basic_auth:
+      username: admin
+      password: tangsu@10086
+    static_configs:
+      # prometheus自带了对自身的exporter监控程序，所以不需额外安装exporter就可配置采集项
+      - targets: ['localhost:9090']
+  # 采集项(prometheus)
+  - job_name: 'node_exporter'
+    basic_auth:
+      username: admin
+      password: tangsu@10086
+    static_configs:
+      # prometheus自带了对自身的exporter监控程序，所以不需额外安装exporter就可配置采集项
+      - targets: ['192.168.1.102:9100']
